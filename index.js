@@ -46,7 +46,7 @@ io.on("connection",(socket)=>{
         io.to(user.room).emit("userData",{users: getUsersInRoom(user.room)})
     })
 
-    socket.on("1playTurn",({i,j,newBooleanArray},callback)=>{
+    socket.on("1playTurn",({i,j,newBooleanArray,newCount},callback)=>{
         //get User function from User.js returns a user with the socket.id associated with it
         const user = getUser(socket.id)
         console.log(user)
@@ -55,7 +55,7 @@ io.on("connection",(socket)=>{
             // console.log(user)
             let otherUser = getOtherUser(user.id,user.room)
             if(otherUser){
-                io.to(otherUser.id).emit("2playturn", {i,j,newBooleanArray});
+                io.to(otherUser.id).emit("2playturn", {i,j,newBooleanArray,newCount});
             } else {
                 io.to(user.id).emit("message", {errorMessage: 'NO second user is present.'})
             }           
