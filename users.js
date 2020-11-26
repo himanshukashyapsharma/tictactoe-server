@@ -6,12 +6,17 @@ const addUser = ({id,name,room})=>{
     room = room.trim().toLowerCase()
 
     const existingUser = users.find((user)=> user.room === room && user.name === name)
+    const usersInRoom = users.filter((user) => {
+        return user.room === room
+    })
+
+    console.log(users)
 
     if(existingUser){
-        return {error: "username already exists"}
+        return {errorMessage: "username already exists"}
     }
 
-    if(users.length === 2 ) return {error: "only two users are allowed"}
+    if(usersInRoom.length === 2 ) return {errorMessage: "only two users are allowed"}
     
     const user = {id,name,room}
 
@@ -31,7 +36,7 @@ const removeUser = (id)=>{
 
 const getUser = (id)=> users.find((user) => user.id === id)
 
-const getOtherUser = (id) => users.find(user => user.id !== id)
+const getOtherUser = (id,room) => users.find(user => user.room === room && user.id !== id)
 
 const getUsersInRoom = (room)=> users.filter((user)=> user.room === room)
 

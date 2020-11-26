@@ -21,15 +21,16 @@ app.use(cors());
 //socket contains socket id and other information
 io.on("connection",(socket)=>{
     console.log("connection:",socket.id)
+
     socket.on("join",({name,room},callback)=>{
         console.log(name,room)
         //uses addUser function from User.js to add a user to users array
-        const {error,user} = addUser({id: socket.id, name,room})
+        const {errorMessage,user} = addUser({id: socket.id, name,room})
     
-        if(error){
-            console.log(error)
+        if(errorMessage){
+            console.log(errorMessage)
             // return callback(error)
-            socket.emit("message",{user: "admin", text: `${error}, Please go back and choose another username.`})
+            socket.emit("message",{errorMessage: `${errorMessage}`}) //<<<<<<<< make it as before if it isn't working
             return null
         } 
 
@@ -41,7 +42,6 @@ io.on("connection",(socket)=>{
         
         //join is an inbuilt function the joins the socket(or user) to the room specified
         socket.join(user.room)
-        console.log("here")
         //sends users list to the user room
         io.to(user.room).emit("roomData",{room: user.room, users: getUsersInRoom(user.room)})
     })
@@ -53,7 +53,7 @@ io.on("connection",(socket)=>{
         if(user !== undefined){
             //sends an object with user-name and text to the room(every user in room recieves it)
             // console.log(user)
-            let otherUser = getOtherUser(socket.id)
+            let otherUser = getOtherUser(user.id,user.room)
             io.to(otherUser.id).emit("2playturn", {i,j,newBooleanArray});
             
             //sends updated user list every time a message is sent(not implemented on client side yet)
@@ -75,7 +75,7 @@ io.on("connection",(socket)=>{
 
         if(user){
             //sends a notification to the room that user has left
-            io.to(user.room).emit("message",{user: "admin", text: `${user.name} has left.`})
+            io.to(user.room).emit("user-left-message",{user: "admin", text: `${user.name} has left.`})
         }
     })
 })
