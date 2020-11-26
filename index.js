@@ -43,7 +43,7 @@ io.on("connection",(socket)=>{
         //join is an inbuilt function the joins the socket(or user) to the room specified
         socket.join(user.room)
         //sends users list to the user room
-        io.to(user.room).emit("roomData",{room: user.room, users: getUsersInRoom(user.room)})
+        io.to(user.room).emit("userData",{users: getUsersInRoom(user.room)})
     })
 
     socket.on("1playTurn",({i,j,newBooleanArray},callback)=>{
@@ -54,10 +54,14 @@ io.on("connection",(socket)=>{
             //sends an object with user-name and text to the room(every user in room recieves it)
             // console.log(user)
             let otherUser = getOtherUser(user.id,user.room)
-            io.to(otherUser.id).emit("2playturn", {i,j,newBooleanArray});
-            
+            if(otherUser){
+                io.to(otherUser.id).emit("2playturn", {i,j,newBooleanArray});
+            } else {
+                io.to(user.id).emit("message", {errorMessage: 'NO second user is present.'})
+            }           
             //sends updated user list every time a message is sent(not implemented on client side yet)
-            io.to(user.room).emit("roomData",{room: user.room,users: getUsersInRoom(user.room)})
+            io.to(user.room).emit("userData",{users: getUsersInRoom(user.room)})
+            console.log("userData",getUsersInRoom(user.room))
             // callback()
         }else{
             socket.emit("message",{user: "admin", text: `This room has been terminated. Please exit or create Another room`})
@@ -75,7 +79,7 @@ io.on("connection",(socket)=>{
 
         if(user){
             //sends a notification to the room that user has left
-            io.to(user.room).emit("user-left-message",{user: "admin", text: `${user.name} has left.`})
+            io.to(user.room).emit("message",{errorMessage: `${user.name} has left.`})
         }
     })
 })
